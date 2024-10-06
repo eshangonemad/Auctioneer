@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            background: url('red.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Garamond', serif;
+            color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #3b2d1f;
+            padding: 20px;
+            border-bottom: 5px solid #b8860b;
+            color: #f4f4f4;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .signup-form {
+            background-color: rgba(0, 0, 0, 0.7);
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            max-width: 400px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        input[type="email"], input[type="password"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #b8860b;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #b8860b;
+            border: none;
+            border-radius: 5px;
+            color: #f4f4f4;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background-color: #d4af37;
+        }
+
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .switch-link {
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sign Up</h1>
+    </header>
+
+    <main>
+        <section class="signup-form">
+            <form id="signupForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+
+                <button type="submit">Sign Up</button>
+
+                <p id="errorMessage" class="error"></p>
+
+                <p>Already have an account? <a href="login.html" class="switch-link">Login</a></p>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        databaseURL: "",
+    };
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        const signupForm = document.getElementById('signupForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Create new user
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // User created
+                    const user = userCredential.user;
+                    
+                    // Set initial money for the user
+                    return database.ref('users/' + user.uid).set({
+                        money: 10000
+                    });
+                })
+                .then(() => {
+                    // Redirect to the auction page after setting initial money
+                    window.location.href = 'index.html'; // Redirect to the auction page
+                })
+                .catch((error) => {
+                    // Handle errors here
+                    errorMessage.textContent = error.message;
+                });
+        });
+    </script>
+</body>
+</html>

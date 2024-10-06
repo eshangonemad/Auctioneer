@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Page</title>
+    <style>
+        /* General Body Style */
+        body {
+            background: url('red.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Garamond', serif;
+            color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Style */
+        header {
+            background-color: #3b2d1f;
+            padding: 20px;
+            border-bottom: 5px solid #b8860b;
+            color: #f4f4f4;
+            text-align: center;
+            box-shadow: inset 0 -10px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Header Title */
+        header h1 {
+            font-size: 48px;
+            margin: 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Navbar Style */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #3b2d1f;
+            color: #f4f4f4;
+            border-bottom: 3px solid #b8860b;
+            font-size: 18px;
+            box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Navbar Links */
+        .navbar a {
+            color: #f4f4f4;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Auction Section */
+        .auction-section {
+            background-color: rgba(0, 0, 0, 0.8);
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 60%;
+            max-width: 700px;
+            text-align: center;
+            border: 3px solid #b8860b;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Auction Image */
+        .auction-image {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 2px solid #b8860b;
+        }
+
+        /* Bid Section */
+        .bid-section {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        /* Bid Input */
+        .bid-section input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #b8860b;
+            background-color: #f4f4f4;
+            color: #3b2d1f;
+        }
+
+        /* Bid Button */
+        .bid-section button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #b8860b;
+            border: none;
+            border-radius: 5px;
+            color: #f4f4f4;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .bid-section button:hover {
+            background-color: #d4af37;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Timer */
+        .timer {
+            font-size: 24px;
+            color: #d4af37;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        /* No Auction Message */
+        #noAuctionMessage {
+            color: #d4af37;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Online Resource Auction</h1>
+    </header>
+
+    <div class="navbar">
+        <a href="#" id="loginLink">Login</a>
+        <span id="username"></span>
+    </div>
+
+    <main>
+        <section class="auction-section">
+            <h2 id="itemName">Item Name</h2>
+            <img id="auctionImage" class="auction-image" src="" alt="Auction Item">
+            <p>Seller: <span id="sellerName">Seller Name</span></p>
+            <p>Current Bid: <span id="currentBid">0</span> Cronos</p>
+            <div class="bid-section">
+                <input type="number" id="bidAmount" placeholder="Enter bid amount">
+                <button id="placeBid">Place Bid</button>
+            </div>
+            <div class="timer">
+                Time Remaining: <span id="timer">Na:Na</span>
+            </div>
+            <div id="noAuctionMessage" style="display: none;">
+                No auction available at the moment.
+            </div>
+        </section>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-database.js"></script>
+    <script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        databaseURL: "",
+    };
+    
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(app);
+    const auth = firebase.auth(app);
+    
+    const timerElement = document.getElementById('timer');
+    const auctionImage = document.getElementById('auctionImage');
+    const itemName = document.getElementById('itemName');
+    const sellerName = document.getElementById('sellerName');
+    const currentBid = document.getElementById('currentBid');
+    const placeBidButton = document.getElementById('placeBid');
+    const bidAmountInput = document.getElementById('bidAmount');
+    const usernameElement = document.getElementById('username');
+    const loginLink = document.getElementById('loginLink');
+    
+    let currentAuction = null;
+    let auctionEndTime = 0;
+    let userId = null;
+    let mailing = null;
+    
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            loginLink.textContent = 'Logout';
+            loginLink.href = '#';
+            usernameElement.textContent = user.email;
+            mailing = user.email;
+            loginLink.addEventListener('click', () => {
+                auth.signOut();
+            });
+            userId = user.uid;
+            updateAuction();
+        } else {
+            loginLink.textContent = 'Login';
+            loginLink.href = '#';
+            usernameElement.textContent = '';
+            loginLink.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+            document.getElementById('noAuctionMessage').style.display = 'block';
+        }
+    });
+    
+    // Function to update the auction details
+    function updateAuction() {
+        const auctionsRef = database.ref('auctions');
+        auctionsRef.orderByChild('endTime').limitToFirst(1).once('value').then(snapshot => {
+            snapshot.forEach(childSnapshot => {
+                currentAuction = childSnapshot.val();
+                currentAuction.key = childSnapshot.key; // Add the key to the currentAuction object
+                auctionEndTime = currentAuction.endTime;
+                itemName.textContent = currentAuction.itemName;
+                sellerName.textContent = currentAuction.seller;
+                auctionImage.src = currentAuction.image;
+    
+                // Set starting bid
+                currentBid.textContent = currentAuction.startingBid || 0;
+    
+                // Start real-time bid updates
+                subscribeToBids();
+                startTimer();
+            });
+        });
+    }
+    
+    // Subscribe to real-time bid updates
+    function subscribeToBids() {
+        const bidsRef = database.ref('bids').orderByChild('auctionId').equalTo(currentAuction.key);
+        
+        bidsRef.on('value', snapshot => {
+            let highestBid = currentAuction.startingBid || 0; // Initialize with starting bid
+            snapshot.forEach(bidSnapshot => {
+                const bidData = bidSnapshot.val();
+                if (bidData.amount > highestBid) {
+                    highestBid = bidData.amount;
+                }
+            });
+            currentBid.textContent = highestBid;
+        });
+    }
+    
+    // Timer function to count down and update every second
+    function startTimer() {
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const timeLeft = Math.max(0, auctionEndTime - now);
+            const minutes = Math.floor((timeLeft % (1000 * 3600)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                endAuction();
+            }
+        }, 1000);
+    }
+    
+    // Function to end the auction
+   // Function to end the auction
+// Function to end the auction
+function endAuction() {
+    if (!currentAuction) {
+        console.error("No current auction available.");
+        return;
+    }
+
+    const auctionRef = database.ref('auctions/' + currentAuction.key);
+    const bidsRef = database.ref('bids');
+    const salesRef = database.ref('sales');
+    const usersRef = database.ref('users');
+
+    let highestBid = 0;
+    let highestBidderUID = null;
+
+    // Find the highest bid for the current auction
+    bidsRef.orderByChild('auctionId').equalTo(currentAuction.key).once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                snapshot.forEach(bidSnapshot => {
+                    const bidData = bidSnapshot.val();
+                    if (bidData.amount > highestBid) {
+                        highestBid = bidData.amount;
+                        highestBidderUID = bidData.userId; // Store UID of highest bidder
+                    }
+                });
+
+                if (highestBidderUID) {
+                    // Fetch the highest bidder's data including their username
+                    usersRef.child(highestBidderUID).once('value').then(userSnapshot => {
+                        const highestBidderData = userSnapshot.val();
+
+                        if (highestBidderData) {
+                            const highestBidderUsername = highestBidderData.username || 'Unknown';
+                            const userBalance = parseFloat(highestBidderData.money) || 0;
+
+                            // Check if the user has enough money
+                            if (userBalance >= highestBid) {
+                                // Deduct the bid amount and update the user's balance atomically
+                                usersRef.child(highestBidderUID).transaction(userData => {
+                                    if (userData) {
+                                        userData.money = userBalance - highestBid;
+                                    }
+                                    return userData;
+                                }).then(() => {
+                                    // Add sale details to 'sales' folder
+                                    salesRef.push({
+                                        username: highestBidderUsername,
+                                        item: currentAuction.itemName,
+                                        seller: currentAuction.seller,
+                                        amount: highestBid
+                                    });
+
+                                    // Mark auction as processed (lock)
+                                    auctionRef.update({ processed: true });
+
+                                    // Remove the auction after processing
+                                    auctionRef.remove().then(() => {
+                                        console.log('Auction ended and sale recorded successfully.');
+                                        // Load the next auction (or update UI)
+                                        updateAuction();
+                                    }).catch(error => {
+                                        console.error("Error removing auction: ", error);
+                                    });
+                                }).catch(error => {
+                                    console.error("Error updating user balance: ", error);
+                                });
+                            } else {
+                                console.error("Highest bidder does not have enough money.");
+                            }
+                        } else {
+                            console.error("Could not retrieve highest bidder data.");
+                        }
+                    }).catch(error => {
+                        console.error("Error fetching highest bidder data: ", error);
+                    });
+                } else {
+                    // Handle the case where no bids were placed
+                    auctionRef.remove().then(() => {
+                        console.log("No bids placed, auction removed.");
+                        updateAuction();
+                    }).catch(error => {
+                        console.error("Error removing auction: ", error);
+                    });
+                }
+            } else {
+                auctionRef.remove().then(() => {
+                    console.log("No bids placed, auction removed.");
+                    updateAuction();
+                }).catch(error => {
+                    console.error("Error removing auction: ", error);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching bids: ", error);
+        });
+}
+
+    // Place a bid
+    placeBidButton.addEventListener('click', () => {
+        if (auth.currentUser) {
+            const bidAmount = parseFloat(bidAmountInput.value); // Ensure bidAmount is a number
+            const userEmail = auth.currentUser.email.replace(/\./g, ','); // Replace dots in email to match DB structure
+            const userRef = database.ref('users/' + userId); // Correct path to user's balance
+    
+            userRef.once('value').then(userSnapshot => {
+                const userData = userSnapshot.val();
+                const userBalance = userData ? parseFloat(userData.money) : 0; // Get user's current balance, ensure it's a number
+    
+                if (userData && bidAmount > (parseFloat(currentBid.textContent) || 0) && bidAmount <= userBalance) {
+                    // Store the bid in the database
+                    database.ref('bids').push({
+                        auctionId: currentAuction.key,
+                        amount: bidAmount,
+                        userEmail: userEmail, // Store email with replaced commas
+                        userId: userId // Store userId for later reference
+                    }).then(() => {
+                        bidAmountInput.value = ''; // Reset bid input
+                    }).catch(error => {
+                        console.error("Error placing bid: ", error);
+                    });
+                } else {
+                    alert('Bid amount must be greater than the current bid and within your balance.');
+                }
+            }).catch(error => {
+                console.error("Error fetching user data: ", error);
+            });
+        } else {
+            alert('Please login to place a bid.');
+        }
+    });
+    </script>
+    
+</body>
+</html>

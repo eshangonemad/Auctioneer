@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            background: url('red.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Garamond', serif;
+            color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            Its mal
+            
+            padding: 0;
+        }
+
+        header {
+            background-color: #3b2d1f;
+            padding: 20px;
+            border-bottom: 5px solid #b8860b;
+            color: #f4f4f4;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-form {
+            background-color: rgba(0, 0, 0, 0.7);
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            max-width: 400px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        input[type="email"], input[type="password"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #b8860b;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #b8860b;
+            border: none;
+            border-radius: 5px;
+            color: #f4f4f4;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background-color: #d4af37;
+        }
+
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .switch-link {
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Login or Sign Up</h1>
+    </header>
+
+    <main>
+        <section class="login-form">
+            <form id="authForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+
+                <button type="submit">Login</button>
+
+                <p id="errorMessage" class="error"></p>
+
+                <p>Don't have an account? <a href="#" id="switchToSignUp" class="switch-link">Sign Up</a></p>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script>
+        // Firebase configuration
+       const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        databaseURL: "",
+    };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const authForm = document.getElementById('authForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+        const switchToSignUp = document.getElementById('switchToSignUp');
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Try to log in
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Logged in successfully
+                    window.location.href = 'index.html'; // Redirect to the auction page
+                })
+                .catch((error) => {
+                    // Handle errors here
+                    errorMessage.textContent = error.message;
+                });
+        });
+
+        switchToSignUp.addEventListener('click', () => {
+            window.location.href = 'signup.html'; // Redirect to the sign-up page
+        });
+    </script>
+</body>
+</html>

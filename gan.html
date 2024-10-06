@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Auction</title>
+    <style>
+        body {
+            background: url('red.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Garamond', serif;
+            color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #3b2d1f;
+            padding: 20px;
+            border-bottom: 5px solid #b8860b;
+            color: #f4f4f4;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-section {
+            background-color: rgba(0, 0, 0, 0.7);
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            max-width: 600px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        input[type="text"], input[type="number"], input[type="url"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #b8860b;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            background-color: #b8860b;
+            border: none;
+            border-radius: 5px;
+            color: #f4f4f4;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background-color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Panel: Add New Auction</h1>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2>Add New Auction</h2>
+            <form id="addAuctionForm">
+                <label for="itemName">Item Name:</label>
+                <input type="text" id="itemName" required>
+                
+                <label for="seller">Seller Name:</label>
+                <input type="text" id="seller" required>
+                
+                <label for="startingBid">Starting Bid (in cronos):</label>
+                <input type="number" id="startingBid" required>
+                
+                <label for="imageUrl">Image URL:</label>
+                <input type="url" id="imageUrl" required>
+
+                <label for="auctionDuration">Auction Duration (minutes):</label>
+                <input type="number" id="auctionDuration" value="15" required>
+
+                <button type="submit">Add Auction</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        databaseURL: "",
+    };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
+        document.getElementById('addAuctionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const itemName = document.getElementById('itemName').value;
+            const seller = document.getElementById('seller').value;
+            const startingBid = document.getElementById('startingBid').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const duration = document.getElementById('auctionDuration').value;
+            const endTime = Date.now() + (duration * 60 * 1000); // Duration in milliseconds
+
+            const newAuction = {
+                itemName,
+                seller,
+                startingBid: parseFloat(startingBid),
+                image: imageUrl,
+                endTime
+            };
+
+            const auctionsRef = firebase.database().ref('auctions');
+            auctionsRef.push(newAuction)
+                .then(() => {
+                    alert('Auction added successfully!');
+                    document.getElementById('addAuctionForm').reset();
+                })
+                .catch((error) => {
+                    alert('Error adding auction: ' + error.message);
+                });
+        });
+    </script>
+</body>
+</html>
