@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ ADD NEW AUCTION PROTOCOL ⚠️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #00ff41;
+            --bg-dark: #0a0a0a;
+            --terminal-bg: #111;
+            --border-color: #00ff41;
+            --text-color: #00ff41;
+            --secondary-text: #00bb36;
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-green) var(--bg-dark);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Scanline Effect */
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanlines 5s linear infinite;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            width: 100%;
+            z-index: 1000;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary-green);
+        }
+
+        .form-section {
+            background-color: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            margin-top: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--secondary-text);
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        input[type="url"] {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--primary-green);
+            padding: 10px;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, 
+        input[type="number"]:focus, 
+        input[type="url"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary-green);
+        }
+
+        button {
+            background-color: var(--primary-green);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚠️ ADD NEW AUCTION PROTOCOL ⚠️</h1>
+    </header>
+
+    <main class="form-section">
+        <form id="addAuctionForm">
+            <label for="itemName">[ ITEM NAME ]</label>
+            <input type="text" id="itemName" required placeholder="ENTER ITEM NAME">
+            
+            <label for="seller">[ SELLER NAME ]</label>
+            <input type="text" id="seller" required placeholder="ENTER SELLER NAME">
+            
+            <label for="startingBid">[ STARTING BID (CRONOS) ]</label>
+            <input type="number" id="startingBid" required placeholder="ENTER STARTING BID">
+            
+            <label for="imageUrl">[ IMAGE URL ]</label>
+            <input type="url" id="imageUrl" required placeholder="ENTER IMAGE URL">
+
+            <label for="auctionDuration">[ AUCTION DURATION (MINUTES) ]</label>
+            <input type="number" id="auctionDuration" value="15" required placeholder="ENTER DURATION">
+
+            <button type="submit">[ ADD AUCTION ]</button>
+        </form>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2eZ6ZgIDUrAFJDtl-g7S3IyXNRPpvQkU",
+            authDomain: "hcdon-264e2.firebaseapp.com",
+            projectId: "hcdon-264e2",
+            storageBucket: "hcdon-264e2.appspot.com",
+            messagingSenderId: "909678578927",
+            appId: "1:909678578927:web:399f86bd42247dbd511f1a",
+            databaseURL: "https://hcdon-264e2-default-rtdb.asia-southeast1.firebasedatabase.app",
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
+        document.getElementById('addAuctionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const itemName = document.getElementById('itemName').value;
+            const seller = document.getElementById('seller').value;
+            const startingBid = document.getElementById('startingBid').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const duration = document.getElementById('auctionDuration').value;
+            const endTime = Date.now() + (duration * 60 * 1000); // Duration in milliseconds
+
+            const newAuction = {
+                itemName,
+                seller,
+                startingBid: parseFloat(startingBid),
+                image: imageUrl,
+                endTime
+            };
+
+            const auctionsRef = firebase.database().ref('auctions');
+            auctionsRef.push(newAuction)
+                .then(() => {
+                    alert('[ AUCTION ADDED SUCCESSFULLY ]');
+                    document.getElementById('addAuctionForm').reset();
+                })
+                .catch((error) => {
+                    alert('[ ERROR ADDING AUCTION: ' + error.message + ' ]');
+                });
+        });
+    </script>
+</body>
+</html>

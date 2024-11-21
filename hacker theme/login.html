@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ SYSTEM ACCESS PROTOCOL ⚠️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #00ff41;
+            --bg-dark: #0a0a0a;
+            --terminal-bg: #111;
+            --border-color: #00ff41;
+            --text-color: #00ff41;
+            --secondary-text: #00bb36;
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-green) var(--bg-dark);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Glitch Effect */
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+
+        /* Scanline Effect */
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanlines 5s linear infinite;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary-green);
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+
+        .login-form {
+            background-color: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--secondary-text);
+        }
+
+        input[type="email"], 
+        input[type="password"] {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--primary-green);
+            padding: 10px;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        input[type="email"]:focus, 
+        input[type="password"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary-green);
+        }
+
+        button {
+            background-color: var(--primary-green);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: white;
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: red;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .switch-link {
+            color: var(--secondary-text);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+
+        .switch-link:hover {
+            color: var(--primary-green);
+        }
+
+        /* Terminal cursor effect */
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .login-form::after {
+            content: '_';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: var(--primary-green);
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚠️ SYSTEM ACCESS PROTOCOL ⚠️</h1>
+    </header>
+
+    <main class="login-form">
+        <form id="authForm">
+            <label for="email">[ ENTER ACCESS CREDENTIALS ]</label>
+            <input type="email" id="email" required placeholder="EMAIL">
+
+            <label for="password">[ AUTHENTICATION TOKEN ]</label>
+            <input type="password" id="password" required placeholder="PASSWORD">
+
+            <button type="submit">[ AUTHENTICATE ]</button>
+
+            <p id="errorMessage" class="error"></p>
+
+            <p>NO ACCESS? <a href="#" id="switchToSignUp" class="switch-link">[ REGISTER NEW PROTOCOL ]</a></p>
+        </form>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script>
+    <script>
+        // Firebase configuration remains the same as in the original document
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2eZ6ZgIDUrAFJDtl-g7S3IyXNRPpvQkU",
+            authDomain: "hcdon-264e2.firebaseapp.com",
+            projectId: "hcdon-264e2",
+            storageBucket: "hcdon-264e2.appspot.com",
+            messagingSenderId: "909678578927",
+            appId: "1:909678578927:web:399f86bd42247dbd511f1a",
+            databaseURL: "https://hcdon-264e2-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const authForm = document.getElementById('authForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+        const switchToSignUp = document.getElementById('switchToSignUp');
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Try to log in
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Logged in successfully
+                    window.location.href = 'index.html'; // Redirect to the auction page
+                })
+                .catch((error) => {
+                    // Handle errors here
+                    errorMessage.textContent = error.message;
+                });
+        });
+
+        switchToSignUp.addEventListener('click', () => {
+            window.location.href = 'signup.html'; // Redirect to the sign-up page
+        });
+    </script>
+</body>
+</html>
